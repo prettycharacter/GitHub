@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+	<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="cn.smbms.dao.provider.ProviderMapper">
+	
+	<!--1. 根据供应商条件获取供应商列表 -->
+	<select id="getProviderList" resultType="Provider">
+		select * from smbms_provider 
+		<where>
+		<if test="proName!=null and proName!=''">
+			and proName like CONCAT('%',#{proName},'%')
+		</if>
+		</where>
+	</select>
+	</mapper>

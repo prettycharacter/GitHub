@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+       
+       <context:component-scan base-package="cn.smbms.controller"></context:component-scan>
+    
+      <!-- ①控制器的自动映射功能 ，一键式配置，包括消息转换器的配置-->
+       <mvc:annotation-driven>
+       	<mvc:message-converters>
+       		<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+       		 	<property name="supportedMediaTypes">
+       		 		<list>
+						<value>application/json;charset=UTF-8</value>       		 		
+       		 		</list>
+       		 	</property>
+       		</bean>
+       		<bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+       			<property name="supportedMediaTypes">
+       				<list>
+       				 	<value>text/html;charset=UTF-8</value>
+       				 	<value>application/json;charset=UTF-8</value>
+       				</list>
+       			</property>
+       			<property name="features">
+       				<list>
+       					<value>WriteDateUseDateFormat</value>
+       				</list>
+       			</property>
+       		</bean>
+       	</mvc:message-converters>
+       </mvc:annotation-driven>
+       
+        <!-- ②引入静态资源 -->
+       <mvc:resources location="/statics/" mapping="/statics/**"></mvc:resources>
+      
+        <!-- ③文件上传需要配置的接口设置文件上传大小以及编码格式 -->
+       <bean id="multipartResolver" 
+       class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+       <property name="maxUploadSize" value="3145728"/>
+       <property name="defaultEncoding" value="UTF-8"/>
+       </bean>
+     
+     <!-- ④配置多视图解析器 -->
+       <bean id="contentNegotiationManager" 
+            class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+            <property name="mediaTypes">
+              <value>
+                html=text/html	
+                json=application/json
+                xml=application/xml
+              </value>
+            </property>
+            <property name="defaultContentType" value="application/json"/>
+            </bean>
+        <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+        <property name="order" value="1"/>
+        <property name="contentNegotiationManager" ref="contentNegotiationManager"/>
+       </bean>
+       <!-- jsp视图解析器 -->
+        <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+            <property name="prefix"><value>/WEB-INF/jsp/</value></property>
+            <property name="suffix"><value>.jsp</value></property>
+       </bean> 
+      
+       <!-- ⑤全局异常处理 -->
+       <bean
+       class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+       	<property name="exceptionMappings">
+       		<props>
+       			<prop key="java.lang.RuntimeException">error</prop>
+       		</props>
+       	</property>
+       </bean>
+       
+       <!-- ⑥配置拦截器 -->
+       <mvc:interceptors>
+		 <mvc:interceptor>
+		 	<mvc:mapping path="/*/sys/**"/>
+		 	<bean class="cn.smbms.interceptor.SysInterceptor"/>
+		 </mvc:interceptor>       
+       </mvc:interceptors>
+</beans>
